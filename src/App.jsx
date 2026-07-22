@@ -1908,9 +1908,11 @@ function Login({ data, onLogin, save, usingSupabase, refresh }) {
             {err && <div style={{ color: "#B03A2E", fontSize: 13, marginTop: 8 }}>{err}</div>}
             <button onClick={go} style={{ width: "100%", background: OLIVE, color: "#fff", border: "none", borderRadius: 26, padding: "15px 0", fontWeight: 800, fontSize: 16, cursor: "pointer", fontFamily: "'Karla',sans-serif", marginTop: 18, boxShadow: "0 6px 18px rgba(42,76,151,0.4)" }}>Login</button>
             {mode === "student" && <div style={{ textAlign: "center", marginTop: 16, fontSize: 14, color: "#6B7686" }}>New admission? <span onClick={() => { setMode("register"); setErr(""); }} style={{ color: OLIVE, fontWeight: 700, cursor: "pointer" }}>Register here</span></div>}
-            <div style={{ marginTop: 18, fontSize: 12, color: "#8792A2", lineHeight: 1.6, background: "#F2F4F8", borderRadius: 12, padding: 10 }}>
-              <b>Demo</b> · Students: <span className="mono">arya/arya123</span>, <span className="mono">mahi/mahi123</span>, <span className="mono">amey/amey123</span> · Teachers: <span className="mono">teacher/kaizen123</span> (admin), <span className="mono">rteacher/teach456</span> · Parent PINs: 1111 / 2222 / 3333
-            </div>
+            {!usingSupabase && (
+              <div style={{ marginTop: 18, fontSize: 12, color: "#8792A2", lineHeight: 1.6, background: "#F2F4F8", borderRadius: 12, padding: 10 }}>
+                <b>Demo</b> · Students: <span className="mono">arya/arya123</span>, <span className="mono">mahi/mahi123</span>, <span className="mono">amey/amey123</span> · Teachers: <span className="mono">teacher/kaizen123</span> (admin), <span className="mono">rteacher/teach456</span> · Parent PINs: 1111 / 2222 / 3333
+              </div>
+            )}
           </>
         )}
         </div>
