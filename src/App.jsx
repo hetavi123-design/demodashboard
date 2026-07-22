@@ -1018,6 +1018,7 @@ function TeacherPortal({ data, save, tid, logout, refresh, usingSupabase }) {
   const [editBatch, setEditBatch] = useState(null);
   const [editVal, setEditVal] = useState("");
   const [batchErr, setBatchErr] = useState("");
+  const [tErr, setTErr] = useState("");
 
   const moveStudent = (id, target) => {
     let b = target;
