@@ -1610,7 +1610,7 @@ function Tabs({ tabs, tab, setTab }) {
 }
 
 /* ---------- login ---------- */
-function Login({ data, onLogin, save, usingSupabase }) {
+function Login({ data, onLogin, save, usingSupabase, refresh }) {
   // Playora-style palette for the login flow
   const OLIVE = "#2A4C97", GRASS = "#1B3866", DEEPG = "#0E1F3D", PALE = "#F2F4F8";
   const [stage, setStage] = useState("slides");   // slides | auth
@@ -1655,9 +1655,10 @@ function Login({ data, onLogin, save, usingSupabase }) {
     if (usingSupabase) {
       try {
         const user = await signIn(u.trim(), p);
-        const teacherEntry = Object.values(data.teachers || {}).find((t) => t.authUserId === user.id);
+        const freshData = await refresh(); // re-fetch now that we're authenticated — the pre-login fetch was blocked by RLS and is stale
+        const teacherEntry = Object.values(freshData?.teachers || {}).find((t) => t.authUserId === user.id);
         if (teacherEntry) { enter({ role: "teacher", tid: teacherEntry.username }); return; }
-        const studentEntry = Object.values(data.students).find((s) => s.authUserId === user.id);
+        const studentEntry = Object.values(freshData?.students || {}).find((s) => s.authUserId === user.id);
         if (studentEntry) { enter({ role: "student", sid: studentEntry.id }); return; }
         setErr("Signed in, but this account isn't linked to a teacher or student yet — contact your center.");
         setShake((x) => x + 1);
@@ -1866,21 +1867,28 @@ export default function KaizenPortal() {
   const [session, setSession] = useState(null);
   const [loadError, setLoadError] = useState(null);
 
-  const refresh = () => {
+  const refresh = async () => {
     if (usingSupabase) {
-      loadCenterDataAsLegacyShape(CENTER_ID).then(setData).catch((e) => setLoadError(e.message));
-    } else {
-      loadData().then((d) => {
-        if (d.teacher && !d.teachers) {
-          d.teachers = { [d.teacher.username]: { ...d.teacher, name: d.teacher.name || "Kaizen Admin", admin: true } };
-          delete d.teacher;
-          try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {}
-        }
+      try {
+        const d = await loadCenterDataAsLegacyShape(CENTER_ID);
         setData(d);
-      });
+        return d;
+      } catch (e) {
+        setLoadError(e.message);
+        return null;
+      }
+    } else {
+      const d = await loadData();
+      if (d.teacher && !d.teachers) {
+        d.teachers = { [d.teacher.username]: { ...d.teacher, name: d.teacher.name || "Kaizen Admin", admin: true } };
+        delete d.teacher;
+        try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {}
+      }
+      setData(d);
+      return d;
     }
   };
-  useEffect(refresh, []);
+  useEffect(() => { refresh(); }, []);
 
   // Still used by write paths not yet migrated off the blob pattern —
   // this keeps them working locally, but changes won't sync across devices
@@ -1894,7 +1902,7 @@ export default function KaizenPortal() {
   return (
     <div className="kz" style={{ minHeight: "100vh", background: MIST }}>
       <style>{FONTS}</style>
-      {!session ? <Login data={data} save={save} onLogin={setSession} usingSupabase={usingSupabase} /> :
+      {!session ? <Login data={data} save={save} onLogin={setSession} usingSupabase={usingSupabase} refresh={refresh} /> :
         session.role === "teacher" ? <TeacherPortal data={data} save={save} tid={session.tid} logout={() => setSession(null)} refresh={refresh} usingSupabase={usingSupabase} /> :
           <StudentPortal data={data} save={save} sid={session.sid} logout={() => setSession(null)} refresh={refresh} usingSupabase={usingSupabase} />}
     </div>
