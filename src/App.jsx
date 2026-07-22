@@ -266,11 +266,11 @@ function StudentPicker({ ids, students, value, onChange, getExtra, style, dark }
         style={inputStyle}
       />
       {open && (
-        <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, maxHeight: 280, overflowY: "auto", background: "#fff", border: "1.5px solid #DDE2EA", borderRadius: 10, boxShadow: "0 12px 28px rgba(0,0,0,0.14)", zIndex: 60 }}>
+        <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, maxHeight: 280, overflowY: "auto", background: "#fff", border: "1.5px solid #DDE2EA", borderRadius: 10, boxShadow: "0 12px 28px rgba(0,0,0,0.14)", zIndex: 60, color: "#13294B" }}>
           {filtered.length === 0 && <div style={{ padding: "12px", fontSize: 13, color: "#7A8794" }}>No students match "{q}".</div>}
           {filtered.slice(0, 60).map((id) => (
             <div key={id} onMouseDown={() => { onChange(id); setOpen(false); setQ(""); }}
-              style={{ padding: "9px 12px", cursor: "pointer", fontSize: 14, display: "flex", justifyContent: "space-between", gap: 8, background: id === value ? "#EDF1FA" : "transparent" }}>
+              style={{ padding: "9px 12px", cursor: "pointer", fontSize: 14, display: "flex", justifyContent: "space-between", gap: 8, background: id === value ? "#EDF1FA" : "transparent", color: "#13294B" }}>
               <span>{students[id].name} <span style={{ color: "#7A8794", fontSize: 12 }}>— {students[id].batch}</span></span>
               {getExtra && <span style={{ color: "#7A8794", fontSize: 12 }}>{getExtra(id)}</span>}
             </div>
